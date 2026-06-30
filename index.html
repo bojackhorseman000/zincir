@@ -1,621 +1,1611 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#050505" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Takip</title>
+
   <style>
-    :root{
-      --bg:#050505; --panel:#0d0d0f; --panel2:#151519; --text:#f3f4f6; --muted:#a1a1aa;
-      --line:#27272a; --accent:#22c55e; --accent2:#38bdf8; --danger:#ef4444; --warn:#f59e0b;
-      --radius:18px;
+    :root {
+      --bg: #0b0f14;
+      --card: #151b23;
+      --card2: #111820;
+      --input: #10161d;
+      --border: #2d3845;
+      --border-soft: #25303b;
+      --text: #f5f7fa;
+      --muted: #9ca8b5;
+      --muted2: #6f7d8b;
+      --accent: #4ade80;
+      --danger: #ff6b7a;
+      --warning: #ffd27d;
+      --blue: #93c5fd;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:var(--bg); color:var(--text); -webkit-tap-highlight-color:transparent;
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
-    button,input,select,textarea{font:inherit}
-    button{border:0; color:inherit; cursor:pointer; touch-action:manipulation}
-    .wrap{max-width:980px; margin:0 auto; padding:14px 14px 92px}
-    .top{position:sticky; top:0; z-index:20; background:linear-gradient(#050505 80%,rgba(5,5,5,0)); padding:12px 0 14px}
-    .brand{display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:10px}
-    .brand h1{font-size:22px; margin:0; letter-spacing:.2px}
-    .pill{font-size:12px; color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:6px 10px; background:#0b0b0d}
-    .grid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
-    .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:12px; box-shadow:0 10px 28px rgba(0,0,0,.25)}
-    .stats{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:10px}
-    .stat{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:10px}
-    .stat b{display:block; font-size:18px}
-    .stat span{display:block; color:var(--muted); font-size:12px; margin-top:2px}
-    .bar{height:11px; border-radius:999px; overflow:hidden; background:#202024; border:1px solid #2b2b30}
-    .fill{height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .2s}
-    .row{display:flex; gap:8px; align-items:center}
-    .row.wraprow{flex-wrap:wrap}
-    .grow{flex:1; min-width:0}
-    .btn{background:var(--panel2); border:1px solid var(--line); border-radius:14px; padding:10px 12px; min-height:42px}
-    .btn.primary{background:#12351f; border-color:#1f7a3d}
-    .btn.blue{background:#0d2635; border-color:#14506f}
-    .btn.warn{background:#30220b; border-color:#765319}
-    .btn.danger{background:#331111; border-color:#7f1d1d}
-    .btn.small{padding:7px 9px; min-height:34px; font-size:13px; border-radius:11px}
-    input[type="text"],textarea,select{
-      width:100%; color:var(--text); background:#0a0a0c; border:1px solid var(--line); border-radius:14px; padding:11px 12px; outline:none;
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      color-scheme: dark;
     }
-    textarea{min-height:96px; resize:vertical}
-    .tabs{display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none}
-    .tabs::-webkit-scrollbar{display:none}
-    .tab{white-space:nowrap; background:var(--panel); border:1px solid var(--line); color:var(--muted); padding:9px 12px; border-radius:999px}
-    .tab.active{color:var(--text); border-color:#247a47; background:#0f2819}
-    .search{margin:8px 0 10px}
-    .list{display:flex; flex-direction:column; gap:8px}
-    .item,.block{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:10px}
-    .item.done .text,.child.done .text{text-decoration:line-through; color:#74747d}
-    .check{width:28px; height:28px; border-radius:9px; border:1px solid #3f3f46; display:grid; place-items:center; flex:0 0 auto; background:#0b0b0d}
-    .done .check{background:#14532d; border-color:#22c55e}
-    .text{line-height:1.35; word-break:break-word}
-    .meta{color:var(--muted); font-size:12px; margin-top:3px}
-    .blockHead{display:flex; gap:9px; align-items:center; margin-bottom:8px}
-    .blockTitle{font-weight:800; font-size:15px}
-    .children{display:flex; flex-direction:column; gap:6px; margin-left:6px; border-left:1px solid var(--line); padding-left:8px}
-    .child{display:flex; gap:8px; align-items:flex-start; background:#0a0a0c; border:1px solid #202024; border-radius:13px; padding:8px}
-    .empty{color:var(--muted); text-align:center; padding:36px 8px}
-    details{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:10px; margin:10px 0}
-    summary{cursor:pointer; font-weight:800; list-style:none}
-    summary::-webkit-details-marker{display:none}
-    .muted{color:var(--muted)}
-    .sectionTitle{font-weight:900; margin:10px 0 8px}
-    .footerBar{position:fixed; left:0; right:0; bottom:0; z-index:30; background:rgba(5,5,5,.92); border-top:1px solid var(--line); backdrop-filter:blur(10px)}
-    .footerInner{max-width:980px; margin:0 auto; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); display:grid; grid-template-columns:1fr 1fr; gap:8px}
-    .hidden{display:none!important}
-    .toast{position:fixed; left:50%; bottom:82px; transform:translateX(-50%); background:#111827; border:1px solid #374151; padding:10px 14px; border-radius:999px; color:#fff; z-index:100; max-width:92%; text-align:center; box-shadow:0 10px 24px rgba(0,0,0,.35)}
-    .dangerText{color:#fca5a5}
-    @media (min-width:720px){.footerInner{grid-template-columns:repeat(4,1fr)} .mobileOnly{display:none}.grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:8px}}
+
+    body.dragging {
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: 24px;
+      letter-spacing: -0.4px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .listbar {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .top {
+      display: grid;
+      grid-template-columns: 1fr 150px;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .item-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 86px;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: stretch;
+    }
+
+    .target-hint {
+      display: none;
+      margin-top: 8px;
+      color: var(--blue);
+      font-size: 14px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .percent {
+      font-size: 36px;
+      font-weight: 850;
+      line-height: 1;
+      margin-top: 6px;
+    }
+
+    .bar {
+      height: 9px;
+      background: #26313d;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 0.2s ease;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      border: 1px solid var(--border);
+      background: var(--input);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #748394;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    button {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    button:hover {
+      background: #1b2430;
+    }
+
+    button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      border-radius: 14px;
+    }
+
+    .primary {
+      background: #eef2f7;
+      color: #05070a;
+      border-color: #eef2f7;
+      font-weight: 800;
+    }
+
+    .primary:hover {
+      background: #dce3ec;
+    }
+
+    .danger {
+      color: var(--danger);
+    }
+
+    .compact-input {
+      margin-top: 8px;
+    }
+
+    details.more {
+      margin-top: 10px;
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    details.more summary {
+      cursor: pointer;
+      padding: 12px;
+      color: var(--muted);
+      user-select: none;
+      list-style: none;
+    }
+
+    details.more summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .tools {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 0 12px 12px;
+    }
+
+    .one-tool {
+      display: grid;
+      margin-top: 10px;
+    }
+
+    .items {
+      padding: 8px 12px;
+    }
+
+    .node {
+      --depth: 0;
+      margin-left: calc(var(--depth) * 16px);
+      display: grid;
+      grid-template-columns: 38px 38px minmax(0, 1fr) 34px 34px 34px;
+      align-items: center;
+      gap: 7px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-soft);
+      background: var(--card);
+      min-width: 0;
+    }
+
+    .node:last-child {
+      border-bottom: none;
+    }
+
+    .node.block {
+      background: linear-gradient(90deg, rgba(255,255,255,0.025), rgba(255,255,255,0));
+    }
+
+    .node.genus {
+      background: linear-gradient(90deg, rgba(147,197,253,0.08), rgba(255,255,255,0));
+    }
+
+    .node.dragging-row {
+      opacity: 0.45;
+      transform: scale(0.98);
+    }
+
+    .handle,
+    .check,
+    .mini-btn,
+    .delete {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+    }
+
+    .handle {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      font-size: 22px;
+      touch-action: none;
+      cursor: grab;
+    }
+
+    .handle.disabled {
+      opacity: 0.28;
+      cursor: default;
+    }
+
+    .handle:active:not(.disabled) {
+      background: rgba(74, 222, 128, 0.16);
+      color: var(--accent);
+      cursor: grabbing;
+    }
+
+    .check {
+      border: 2px solid #8a98a8;
+      background: #1d2732;
+      color: transparent;
+      font-size: 21px;
+      font-weight: 900;
+    }
+
+    .check.done {
+      background: var(--accent);
+      border-color: #86efac;
+      color: #041006;
+    }
+
+    .check.partial {
+      color: #041006;
+      background: #a7f3d0;
+      border-color: #a7f3d0;
+    }
+
+    .node-text {
+      min-width: 0;
+      font-size: 15.5px;
+      line-height: 1.35;
+      overflow-wrap: break-word;
+    }
+
+    .node.done > .node-text {
+      color: var(--muted2);
+      text-decoration: line-through;
+    }
+
+    .meta {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      color: var(--muted);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-soft);
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .badge.genus-badge {
+      color: var(--blue);
+      border-color: rgba(147,197,253,0.35);
+      background: rgba(147,197,253,0.08);
+    }
+
+    .mini-btn {
+      color: var(--muted);
+      font-size: 17px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .delete {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 24px;
+      border-radius: 50%;
+    }
+
+    .delete:hover {
+      background: rgba(255, 107, 122, 0.12);
+      color: var(--danger);
+    }
+
+    .children {
+      display: block;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted2);
+      padding: 28px 0;
+      font-size: 14px;
+    }
+
+    .toast {
+      display: none;
+      margin-top: 10px;
+      color: var(--warning);
+      font-size: 14px;
+    }
+
+    .hidden-file {
+      display: none;
+    }
+
+    .merge-panel {
+      margin: 0 12px 12px;
+      padding: 12px;
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .merge-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .merge-map {
+      color: var(--blue);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .merge-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .merge-action {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .checkline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--input);
+      user-select: none;
+    }
+
+    .checkline input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+
+    @media (max-width: 560px) {
+      .app {
+        padding: 14px;
+      }
+
+      .top,
+      .item-row,
+      .tools,
+      .merge-grid,
+      .merge-action {
+        grid-template-columns: 1fr;
+      }
+
+      .listbar {
+        grid-template-columns: 1fr 42px 42px 42px;
+      }
+
+      .icon-btn {
+        width: 42px;
+        height: 42px;
+      }
+
+      .items {
+        padding: 8px 10px;
+      }
+
+      .node {
+        grid-template-columns: 32px 34px minmax(0, 1fr) 31px 31px 31px;
+        gap: 6px;
+        margin-left: calc(var(--depth) * 10px);
+      }
+
+      .handle,
+      .check,
+      .mini-btn,
+      .delete {
+        width: 31px;
+        height: 31px;
+      }
+    }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand">
-        <h1>Takip</h1>
-        <span class="pill" id="backupStatus">Yedek hazır</span>
+  <main class="app">
+    <h1>Takip</h1>
+
+    <section class="card">
+      <div class="label">Listeler</div>
+
+      <div class="listbar">
+        <select id="listSelect"></select>
+        <button class="icon-btn primary" id="createListBtn" type="button" title="Yeni liste">+</button>
+        <button class="icon-btn" id="renameListBtn" type="button" title="Ad değiştir">✎</button>
+        <button class="icon-btn danger" id="deleteListBtn" type="button" title="Listeyi sil">🗑</button>
       </div>
-      <div class="stats">
-        <div class="stat"><b id="doneCount">0</b><span>Tamamlanan</span></div>
-        <div class="stat"><b id="totalCount">0</b><span>Toplam</span></div>
-        <div class="stat"><b id="percentCount">0%</b><span>İlerleme</span></div>
+
+      <input id="listNameInput" class="compact-input" autocomplete="off" placeholder="Yeni liste adı / ad değiştir" />
+
+      <div class="toast" id="toast"></div>
+    </section>
+
+    <section class="card">
+      <div class="top">
+        <div>
+          <div class="muted" id="activeListName">Genel</div>
+          <div class="muted" id="countText">0 / 0 tamamlandı</div>
+          <div class="percent" id="percentText">%0</div>
+        </div>
+
+        <select id="filter">
+          <option value="all">Tümü</option>
+          <option value="todo">Kalan</option>
+          <option value="done">Biten</option>
+        </select>
       </div>
-      <div class="bar"><div class="fill" id="fill"></div></div>
-    </div>
 
-    <div class="tabs" id="tabs"></div>
-
-    <div class="card" style="margin-bottom:10px">
-      <div class="row">
-        <input id="newListName" type="text" placeholder="Yeni liste adı" />
-        <button class="btn primary" id="addListBtn">Liste ekle</button>
+      <div class="bar">
+        <div class="fill" id="fill"></div>
       </div>
-      <div class="row" style="margin-top:8px">
-        <input id="newItemText" type="text" placeholder="Aktif listeye yeni madde" />
-        <button class="btn blue" id="addItemBtn">Ekle</button>
+
+      <details class="more">
+        <summary>Liste seçenekleri</summary>
+
+        <div class="tools">
+          <button id="completeBtn" type="button">Hepsini Bitir</button>
+          <button id="uncheckBtn" type="button">Tikleri Kaldır</button>
+          <button id="clearItemsBtn" class="danger" type="button">Listeyi Boşalt</button>
+        </div>
+
+        <div class="tools">
+          <button id="exportListBtn" type="button">Listeyi İndir</button>
+          <button id="exportAllBtn" type="button">Yedekle</button>
+          <button id="importBtn" type="button">Yedek Yükle</button>
+        </div>
+
+        <div class="tools">
+          <button id="expandAllBtn" type="button">Blokları Aç</button>
+          <button id="collapseAllBtn" type="button">Blokları Kapat</button>
+        </div>
+
+
+
+        <div class="merge-panel">
+          <div class="merge-title">
+            <span>Kök haritası ile birleştir</span>
+            <span class="merge-map" id="mergeMapText">Kök ← Dal</span>
+          </div>
+
+          <div class="merge-grid">
+            <select id="mergeRootSelect" title="Kök liste"></select>
+            <select id="mergeBranchSelect" title="Eklenecek dal liste"></select>
+          </div>
+
+          <div class="merge-grid">
+            <select id="mergeMode" title="Birleştirme yöntemi">
+              <option value="smart">Akıllı eşleştir</option>
+              <option value="block">Dal bloğu olarak göm</option>
+              <option value="append">Düz ekle</option>
+            </select>
+
+            <label class="checkline" title="Birleştirmeden sonra dal listeyi kaldır">
+              <input id="mergeDeleteBranch" type="checkbox" />
+              Dal listeyi sil
+            </label>
+          </div>
+
+          <div class="merge-action">
+            <button id="mergeBtn" class="primary" type="button">Köke Birleştir</button>
+            <button id="swapMergeBtn" type="button" title="Kök ve dalı değiştir">⇄</button>
+          </div>
+        </div>
+
+        <input id="fileInput" class="hidden-file" type="file" accept=".json,.txt,application/json,text/plain" />
+      </details>
+    </section>
+
+    <section class="card">
+      <div class="item-row">
+        <select id="nodeType">
+          <option value="item">Öğe</option>
+          <option value="block">Blok</option>
+          <option value="genus-species">Cins-Tür</option>
+        </select>
+        <input id="itemInput" autocomplete="off" placeholder="Konu, tür, başlık, video, soru..." />
+        <button class="primary" id="addItemBtn" type="button">Ekle</button>
       </div>
-    </div>
+      <div class="target-hint" id="targetHint"></div>
+    </section>
 
-    <details open>
-      <summary>Yedekleme</summary>
-      <div class="muted" style="margin:8px 0 10px">Tüm listeler ve tik durumları tek JSON dosyası olarak kaydedilir. APK silinir ya da telefon değişirse bu dosyayı tekrar yükleyebilirsin.</div>
-      <div class="grid4 row wraprow">
-        <button class="btn primary" id="downloadBackupBtn">Yedek al</button>
-        <button class="btn blue" id="restoreBackupBtn">Yedek yükle</button>
-        <button class="btn" id="exportActiveBtn">Aktif listeyi dışa aktar</button>
-        <button class="btn warn" id="copyBackupBtn">Yedeği kopyala</button>
+    <section class="card">
+      <textarea id="bulkInput" placeholder="Toplu ekleme: Her satıra bir öğe yaz"></textarea>
+
+      <div class="one-tool">
+        <button id="bulkBtn" type="button">Toplu Ekle</button>
       </div>
-      <input class="hidden" type="file" id="backupFile" accept="application/json,.json" />
-      <div class="sectionTitle">Otomatik yerel yedekler</div>
-      <div class="muted">Uygulama önemli değişikliklerde son yedekleri telefon içinde saklar. Bu, dosya yedeğinin yerine geçmez ama yanlışlıkla silmede kurtarır.</div>
-      <div id="autoBackups" class="list" style="margin-top:8px"></div>
-    </details>
+    </section>
 
-    <details>
-      <summary>İçe / dışa aktarma</summary>
-      <div class="row wraprow" style="margin-top:10px">
-        <button class="btn blue" id="importListBtn">Liste JSON içe aktar</button>
-        <button class="btn" id="exportTxtBtn">Aktif listeyi TXT indir</button>
-        <button class="btn danger" id="resetBtn">Tümünü sıfırla</button>
-      </div>
-      <input class="hidden" type="file" id="importFile" accept="application/json,.json,text/plain,.txt" />
-      <div class="sectionTitle">Hızlı JSON yapıştır</div>
-      <textarea id="pasteBox" placeholder="JSON içeriğini buraya yapıştır"></textarea>
-      <div class="row" style="margin-top:8px"><button class="btn blue" id="pasteImportBtn">Yapıştırılandan içe aktar</button></div>
-    </details>
+    <section class="card items" id="items"></section>
+  </main>
 
-    <div class="search"><input id="search" type="text" placeholder="Aktif listede ara" /></div>
-    <div class="row wraprow" style="margin-bottom:10px">
-      <button class="btn small" id="filterAll">Tümü</button>
-      <button class="btn small" id="filterTodo">Kalan</button>
-      <button class="btn small" id="filterDone">Biten</button>
-      <button class="btn small warn" id="renameListBtn">Listeyi yeniden adlandır</button>
-      <button class="btn small danger" id="deleteListBtn">Listeyi sil</button>
-    </div>
+  <script>
+    const STORAGE_KEY = "takipListeleri.generic.v1";
+    const OLD_KEYS = [];
+    const $ = id => document.getElementById(id);
 
-    <div id="list" class="list"></div>
-  </div>
+    const els = {
+      listSelect: $("listSelect"),
+      listNameInput: $("listNameInput"),
+      createListBtn: $("createListBtn"),
+      renameListBtn: $("renameListBtn"),
+      deleteListBtn: $("deleteListBtn"),
 
-  <div class="footerBar">
-    <div class="footerInner">
-      <button class="btn primary" id="quickBackupBtn">Yedek al</button>
-      <button class="btn blue" id="quickImportBtn">Yedek yükle</button>
-      <button class="btn" id="markAllBtn">Tümünü bitir/aç</button>
-      <button class="btn warn" id="undoBtn">Geri al</button>
-    </div>
-  </div>
+      activeListName: $("activeListName"),
+      countText: $("countText"),
+      percentText: $("percentText"),
+      fill: $("fill"),
+      filter: $("filter"),
 
-<script>
-(function(){
-  'use strict';
+      nodeType: $("nodeType"),
+      itemInput: $("itemInput"),
+      addItemBtn: $("addItemBtn"),
+      targetHint: $("targetHint"),
 
-  const STORAGE_KEY = 'takipListeleri.generic.v1';
-  const BACKUP_KEY = STORAGE_KEY + '.autoBackups';
-  const MAX_AUTO_BACKUPS = 12;
-  const AUTOSAVE_DELAY = 700;
+      completeBtn: $("completeBtn"),
+      uncheckBtn: $("uncheckBtn"),
+      clearItemsBtn: $("clearItemsBtn"),
 
-  let state = loadState();
-  let filter = 'all';
-  let undoStack = [];
-  let autoTimer = null;
+      exportListBtn: $("exportListBtn"),
+      exportAllBtn: $("exportAllBtn"),
+      importBtn: $("importBtn"),
+      fileInput: $("fileInput"),
+      expandAllBtn: $("expandAllBtn"),
+      collapseAllBtn: $("collapseAllBtn"),
+      mergeRootSelect: $("mergeRootSelect"),
+      mergeBranchSelect: $("mergeBranchSelect"),
+      mergeMode: $("mergeMode"),
+      mergeDeleteBranch: $("mergeDeleteBranch"),
+      mergeBtn: $("mergeBtn"),
+      swapMergeBtn: $("swapMergeBtn"),
+      mergeMapText: $("mergeMapText"),
 
-  const el = id => document.getElementById(id);
-  const tabs = el('tabs');
-  const listEl = el('list');
+      bulkInput: $("bulkInput"),
+      bulkBtn: $("bulkBtn"),
 
-  function uid(){ return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8); }
-  function nowIso(){ return new Date().toISOString(); }
-  function trDate(iso){ try{return new Date(iso).toLocaleString('tr-TR');}catch(e){return iso||'';} }
-  function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2200); }
-  function deepClone(x){ return JSON.parse(JSON.stringify(x)); }
+      items: $("items"),
+      toast: $("toast")
+    };
 
-  function defaultState(){
-    const id = uid();
-    return { version:3, createdAt:nowIso(), updatedAt:nowIso(), activeListId:id, lists:[{id, name:'Genel', items:[]}] };
-  }
+    let data = loadData();
+    let dragRow = null;
+    let toastTimer = null;
+    let pendingDeleteListId = null;
+    let pendingDeleteTimer = null;
+    let pendingParentId = null;
 
-  function loadState(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return defaultState();
-      const parsed = JSON.parse(raw);
-      return normalizeState(parsed);
-    }catch(e){ return defaultState(); }
-  }
-
-  function normalizeState(data){
-    if(!data || typeof data !== 'object') return defaultState();
-    let lists = [];
-    if(Array.isArray(data.lists)) lists = data.lists;
-    else if(Array.isArray(data.items)) lists = [{ name:data.name || 'İçe aktarılan', items:data.items }];
-    else lists = [];
-    lists = lists.map(l => ({ id:l.id || uid(), name:String(l.name || 'Liste'), items:normalizeItems(l.items || []) }));
-    if(!lists.length) lists = defaultState().lists;
-    const activeListId = lists.some(l=>l.id===data.activeListId) ? data.activeListId : lists[0].id;
-    return { version:3, createdAt:data.createdAt || nowIso(), updatedAt:data.updatedAt || nowIso(), activeListId, lists };
-  }
-
-  function normalizeItems(items){
-    if(!Array.isArray(items)) return [];
-    return items.map(it => normalizeItem(it)).filter(Boolean);
-  }
-
-  function normalizeItem(it){
-    if(typeof it === 'string') return {id:uid(), type:'item', text:it, done:false};
-    if(!it || typeof it !== 'object') return null;
-    const hasChildren = Array.isArray(it.children);
-    if(hasChildren || it.type === 'block'){
-      return { id:it.id || uid(), type:'block', kind:it.kind || 'block', text:String(it.text || it.name || 'Blok'), done:!!it.done, children:normalizeItems(it.children || []) };
+    function makeId() {
+      const cryptoObj = window.crypto || window.msCrypto;
+      if (cryptoObj && typeof cryptoObj.randomUUID === "function") {
+        return cryptoObj.randomUUID();
+      }
+      return "id-" + Date.now() + "-" + Math.random().toString(16).slice(2);
     }
-    return { id:it.id || uid(), type:'item', text:String(it.text || it.name || ''), done:!!it.done, page:it.page || it.sayfa || undefined, source:it.source || undefined };
-  }
 
-  function activeList(){ return state.lists.find(l=>l.id===state.activeListId) || state.lists[0]; }
+    function cleanText(value) {
+      return String(value || "").trim();
+    }
 
-  function save(reason){
-    state.updatedAt = nowIso();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    scheduleAutoBackup(reason || 'değişiklik');
+    function escapeHTML(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function parseJSON(key) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function normalizeNode(node, index) {
+      const hasChildren = node && Array.isArray(node.children);
+      const rawType = cleanText(node && node.type);
+      const rawKind = cleanText(node && node.kind);
+      const isBlock = rawType === "block" || hasChildren;
+      const kind = rawKind || (isBlock ? "block" : "item");
+      const text = cleanText((node && (node.text || node.name || node.title)) || "Öğe " + (index + 1));
+
+      const normalized = {
+        id: String((node && node.id) || makeId()),
+        type: isBlock ? "block" : "item",
+        kind: kind === "genus-species" ? "genus-species" : kind,
+        text: text,
+        done: Boolean(node && (node.done !== undefined ? node.done : node.completed))
+      };
+
+      if (node && node.page !== undefined) normalized.page = node.page;
+
+      if (normalized.type === "block") {
+        normalized.open = node && node.open !== undefined ? Boolean(node.open) : true;
+        normalized.children = hasChildren
+          ? node.children.map(normalizeNode).filter(child => child.text)
+          : [];
+      }
+
+      return normalized;
+    }
+
+    function cloneForImport(node, index) {
+      const normalized = normalizeNode(node, index);
+      normalized.id = makeId();
+      if (normalized.children) {
+        normalized.children = normalized.children.map(cloneForImport).filter(child => child.text);
+      }
+      return normalized;
+    }
+
+    function defaultDataFromPayload(payload) {
+      const lists = payload && Array.isArray(payload.lists)
+        ? payload.lists.map((list, index) => normalizeList(list, index, true)).filter(list => list.name)
+        : [];
+
+      if (lists.length) {
+        return { activeListId: lists[0].id, lists };
+      }
+
+      const listId = makeId();
+      return {
+        activeListId: listId,
+        lists: [{ id: listId, name: "Genel", items: [] }]
+      };
+    }
+
+    function normalizeList(list, index, preserveIds) {
+      const items = Array.isArray(list && list.items)
+        ? list.items.map(preserveIds ? normalizeNode : cloneForImport).filter(item => item.text)
+        : [];
+
+      return {
+        id: preserveIds ? String((list && list.id) || makeId()) : makeId(),
+        name: cleanText((list && list.name) || "Liste " + (index + 1)),
+        items
+      };
+    }
+
+    function normalizeData(raw) {
+      if (Array.isArray(raw)) {
+        const listId = makeId();
+        return {
+          activeListId: listId,
+          lists: [{ id: listId, name: "Genel", items: raw.map(normalizeNode).filter(item => item.text) }]
+        };
+      }
+
+      if (!raw || !Array.isArray(raw.lists)) return null;
+
+      const lists = raw.lists
+        .map((list, index) => normalizeList(list, index, true))
+        .filter(list => list.name);
+
+      if (!lists.length) return null;
+
+      return {
+        activeListId: lists.some(list => list.id === raw.activeListId) ? raw.activeListId : lists[0].id,
+        lists
+      };
+    }
+
+    function loadData() {
+      let loaded = normalizeData(parseJSON(STORAGE_KEY));
+
+      for (let i = 0; i < OLD_KEYS.length && !loaded; i++) {
+        loaded = normalizeData(parseJSON(OLD_KEYS[i]));
+      }
+
+      return loaded || defaultDataFromPayload(null);
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch {
+        showToast("Kaydedilemedi. Depolama alanı dolu olabilir.");
+      }
+    }
+
+    function activeList() {
+      let list = data.lists.find(list => list.id === data.activeListId);
+      if (!list) {
+        data.activeListId = data.lists[0].id;
+        list = data.lists[0];
+      }
+      return list;
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.style.display = "block";
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        els.toast.style.display = "none";
+      }, 2600);
+    }
+
+    function resetPendingDelete() {
+      pendingDeleteListId = null;
+      clearTimeout(pendingDeleteTimer);
+    }
+
+    function uniqueListName(name) {
+      const base = cleanText(name) || "Liste";
+      const existing = data.lists.map(list => list.name.toLowerCase());
+      if (!existing.includes(base.toLowerCase())) return base;
+
+      let counter = 2;
+      let candidate = base + " (" + counter + ")";
+      while (existing.includes(candidate.toLowerCase())) {
+        counter++;
+        candidate = base + " (" + counter + ")";
+      }
+      return candidate;
+    }
+
+    function createList() {
+      const name = cleanText(els.listNameInput.value) || "Liste " + (data.lists.length + 1);
+      const list = { id: makeId(), name: uniqueListName(name), items: [] };
+      data.lists.push(list);
+      data.activeListId = list.id;
+      els.listNameInput.value = "";
+      els.filter.value = "all";
+      resetPendingDelete();
+      save();
+      render();
+    }
+
+    function renameList() {
+      const name = cleanText(els.listNameInput.value);
+      if (!name) {
+        els.listNameInput.value = activeList().name;
+        els.listNameInput.focus();
+        showToast("Yeni adı yazıp tekrar ✎ simgesine bas.");
+        return;
+      }
+      activeList().name = uniqueListName(name);
+      els.listNameInput.value = "";
+      resetPendingDelete();
+      save();
+      render();
+    }
+
+    function deleteActiveList() {
+      const list = activeList();
+      if (pendingDeleteListId !== list.id) {
+        pendingDeleteListId = list.id;
+        clearTimeout(pendingDeleteTimer);
+        pendingDeleteTimer = setTimeout(() => { pendingDeleteListId = null; }, 3000);
+        showToast('"' + list.name + '" listesini silmek için çöp kutusuna tekrar bas.');
+        return;
+      }
+
+      data.lists = data.lists.filter(item => item.id !== list.id);
+      if (!data.lists.length) data = defaultDataFromPayload(null);
+      else data.activeListId = data.lists[0].id;
+      els.filter.value = "all";
+      els.listNameInput.value = "";
+      resetPendingDelete();
+      save();
+      render();
+      showToast("Liste silindi.");
+    }
+
+    function makeNode(text, selectedType) {
+      const type = selectedType === "item" ? "item" : "block";
+      const kind = selectedType === "genus-species" ? "genus-species" : type;
+      const node = { id: makeId(), type, kind, text: cleanText(text), done: false };
+      if (type === "block") {
+        node.open = true;
+        node.children = [];
+      }
+      return node;
+    }
+
+    function addNodeFromInput() {
+      const text = cleanText(els.itemInput.value);
+      if (!text) return;
+
+      const node = makeNode(text, els.nodeType.value);
+      if (pendingParentId) {
+        const found = findNode(activeList().items, pendingParentId);
+        if (found && found.node.type === "block") {
+          found.node.children.push(node);
+          found.node.open = true;
+          clearPendingParent();
+        } else {
+          activeList().items.push(node);
+          clearPendingParent();
+        }
+      } else {
+        activeList().items.push(node);
+      }
+
+      els.itemInput.value = "";
+      save();
+      render();
+    }
+
+    function addBulkItems() {
+      const lines = String(els.bulkInput.value || "").split(/\r?\n/).map(cleanText).filter(Boolean);
+      if (!lines.length) return;
+
+      const nodes = lines.map(line => makeNode(line, "item"));
+      if (pendingParentId) {
+        const found = findNode(activeList().items, pendingParentId);
+        if (found && found.node.type === "block") {
+          found.node.children.push(...nodes);
+          found.node.open = true;
+          clearPendingParent();
+        } else {
+          activeList().items.push(...nodes);
+          clearPendingParent();
+        }
+      } else {
+        activeList().items.push(...nodes);
+      }
+
+      els.bulkInput.value = "";
+      save();
+      render();
+    }
+
+    function findNode(nodes, id, parentArray) {
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        if (node.id === id) return { node, index: i, parentArray: nodes };
+        if (node.children) {
+          const found = findNode(node.children, id, node.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
+    function setDoneRecursive(node, done) {
+      node.done = done;
+      if (node.children) node.children.forEach(child => setDoneRecursive(child, done));
+    }
+
+    function nodeStats(node) {
+      if (!node.children || !node.children.length) {
+        return { total: 1, done: node.done ? 1 : 0 };
+      }
+      return node.children.reduce((sum, child) => {
+        const childStats = nodeStats(child);
+        sum.total += childStats.total;
+        sum.done += childStats.done;
+        return sum;
+      }, { total: 0, done: 0 });
+    }
+
+    function listStats(nodes) {
+      return nodes.reduce((sum, node) => {
+        const stats = nodeStats(node);
+        sum.total += stats.total;
+        sum.done += stats.done;
+        return sum;
+      }, { total: 0, done: 0 });
+    }
+
+    function getNodeDoneState(node) {
+      const stats = nodeStats(node);
+      if (stats.total === 0 || stats.done === 0) return "none";
+      if (stats.done === stats.total) return "done";
+      return "partial";
+    }
+
+    function updateNode(id, callback) {
+      const found = findNode(activeList().items, id);
+      if (!found) return;
+      callback(found.node, found);
+      save();
+      render();
+    }
+
+    function deleteNode(id) {
+      const found = findNode(activeList().items, id);
+      if (!found) return;
+      found.parentArray.splice(found.index, 1);
+      if (pendingParentId === id) clearPendingParent();
+      save();
+      render();
+    }
+
+    function clearCurrentList() {
+      activeList().items = [];
+      clearPendingParent();
+      save();
+      render();
+      showToast("Liste boşaltıldı.");
+    }
+
+    function setAllDone(done) {
+      activeList().items.forEach(node => setDoneRecursive(node, done));
+      save();
+      render();
+    }
+
+    function setAllOpen(open) {
+      walkNodes(activeList().items, node => {
+        if (node.type === "block") node.open = open;
+      });
+      save();
+      render();
+    }
+
+    function walkNodes(nodes, callback) {
+      nodes.forEach(node => {
+        callback(node);
+        if (node.children) walkNodes(node.children, callback);
+      });
+    }
+
+    function setPendingParent(id) {
+      const found = findNode(activeList().items, id);
+      if (!found || found.node.type !== "block") return;
+      pendingParentId = id;
+      els.targetHint.textContent = 'Ekleme hedefi: "' + found.node.text + '" içine. İptal için buraya dokun.';
+      els.targetHint.style.display = "block";
+      els.itemInput.focus();
+    }
+
+    function clearPendingParent() {
+      pendingParentId = null;
+      els.targetHint.textContent = "";
+      els.targetHint.style.display = "none";
+    }
+
+    function nodeMatchesFilter(node) {
+      const filter = els.filter.value;
+      if (filter === "all") return true;
+
+      if (node.children && node.children.length) {
+        return node.children.some(nodeMatchesFilter);
+      }
+
+      return filter === "done" ? Boolean(node.done) : !node.done;
+    }
+
+    function exportNode(node) {
+      const out = { type: node.type, kind: node.kind, text: node.text, done: getNodeDoneState(node) === "done" };
+      if (node.page !== undefined) out.page = node.page;
+      if (node.type === "block") {
+        out.open = node.open !== false;
+        out.children = (node.children || []).map(exportNode);
+      }
+      return out;
+    }
+
+    function exportCurrentList() {
+      const list = activeList();
+      const payload = {
+        type: "takip-listesi-v2",
+        format: "blocks",
+        supports: ["list", "item", "block", "genus-species"],
+        name: list.name,
+        items: list.items.map(exportNode)
+      };
+      downloadFile(safeFileName(list.name) + ".json", JSON.stringify(payload, null, 2), "application/json");
+    }
+
+    function exportAllLists() {
+      const payload = {
+        type: "takip-tam-yedek-v1",
+        exportedAt: new Date().toISOString(),
+        data: {
+          activeListId: data.activeListId,
+          lists: data.lists.map(list => ({
+            id: list.id,
+            name: list.name,
+            items: list.items.map(exportNode)
+          }))
+        }
+      };
+      downloadFile("takip-yedek.json", JSON.stringify(payload, null, 2), "application/json");
+      showToast("Yedek indirildi.");
+    }
+
+    function downloadFile(filename, content, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function safeFileName(value) {
+      const name = cleanText(value)
+        .toLowerCase()
+        .replace(/[^a-z0-9ığüşöçİĞÜŞÖÇ]+/gi, "-")
+        .replace(/^-+|-+$/g, "");
+      return name || "liste";
+    }
+
+    function triggerImport() {
+      els.fileInput.value = "";
+      els.fileInput.click();
+    }
+
+    function handleFileImport(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => importFromText(String(reader.result || ""), file.name);
+      reader.onerror = () => showToast("Dosya okunamadı.");
+      reader.readAsText(file);
+    }
+
+    function importFromText(rawText, fileName) {
+      const text = cleanText(rawText);
+      if (!text) {
+        showToast("Dosya boş.");
+        return;
+      }
+
+      try {
+        importFromJSON(JSON.parse(text), fileName);
+      } catch {
+        importPlainText(text, fileName);
+      }
+    }
+
+    function importFromJSON(parsed, fileName) {
+      if (parsed && parsed.type === "takip-tam-yedek-v1" && parsed.data) {
+        const restored = normalizeData(parsed.data);
+
+        if (!restored) {
+          showToast("Yedek dosyası geçerli değil.");
+          return;
+        }
+
+        data = restored;
+        els.filter.value = "all";
+        els.listNameInput.value = "";
+        resetPendingDelete();
+        save();
+        render();
+        showToast("Yedek geri yüklendi.");
+        return;
+      }
+
+      let newLists = [];
+      if (Array.isArray(parsed)) {
+        newLists.push({ id: makeId(), name: uniqueListName(fileBaseName(fileName) || "Yüklenen Liste"), items: parsed.map(cloneForImport).filter(item => item.text) });
+      } else if (parsed && Array.isArray(parsed.lists)) {
+        newLists = parsed.lists.map((list, index) => normalizeList({ name: list.name || "Yüklenen Liste " + (index + 1), items: list.items || [] }, index, false));
+      } else if (parsed && Array.isArray(parsed.items)) {
+        newLists.push(normalizeList({ name: parsed.name || fileBaseName(fileName) || "Yüklenen Liste", items: parsed.items }, 0, false));
+      }
+
+      newLists = newLists.filter(list => list.name);
+      if (!newLists.length) {
+        showToast("Bu dosyada yüklenebilir liste bulunamadı.");
+        return;
+      }
+      appendImportedLists(newLists);
+    }
+
+    function importPlainText(text, fileName) {
+      const lines = text.split(/\r?\n/).map(cleanText).filter(Boolean);
+      if (!lines.length) {
+        showToast("Yüklenecek satır bulunamadı.");
+        return;
+      }
+      appendImportedLists([{
+        id: makeId(),
+        name: uniqueListName(fileBaseName(fileName) || "Yüklenen Liste"),
+        items: lines.map(line => makeNode(line, "item"))
+      }]);
+    }
+
+    function appendImportedLists(lists) {
+      const cleanLists = lists.map((list, index) => ({
+        id: makeId(),
+        name: uniqueListName(list.name || "Yüklenen Liste " + (index + 1)),
+        items: Array.isArray(list.items) ? list.items : []
+      })).filter(list => list.name);
+
+      data.lists.push(...cleanLists);
+      data.activeListId = cleanLists[0].id;
+      els.filter.value = "all";
+      clearPendingParent();
+      save();
+      render();
+      showToast(cleanLists.length + " liste yüklendi.");
+    }
+
+
+    function fileBaseName(fileName) {
+      return cleanText(fileName).replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
+    }
+
+
+    function canonicalText(value) {
+      return cleanText(value)
+        .toLocaleLowerCase("tr-TR")
+        .replace(/^\d+[.)]\s*/, "")
+        .replace(/\s+/g, " ");
+    }
+
+    function cloneNodeDeep(node) {
+      const cloned = cloneForImport(node, 0);
+      cloned.id = makeId();
+      if (cloned.children) cloned.children = cloned.children.map(cloneNodeDeep);
+      return cloned;
+    }
+
+    function cloneNodesDeep(nodes) {
+      return Array.isArray(nodes) ? nodes.map(cloneNodeDeep).filter(node => node.text) : [];
+    }
+
+    function findMergeMatch(nodes, incoming) {
+      const incomingKey = canonicalText(incoming.text);
+      const incomingKind = incoming.kind || incoming.type || "item";
+
+      return nodes.find(node => {
+        const sameText = canonicalText(node.text) === incomingKey;
+        const nodeKind = node.kind || node.type || "item";
+        return sameText && (nodeKind === incomingKind || incoming.type === "item" || node.type === "item");
+      });
+    }
+
+    function mergeNodeInto(nodes, incoming) {
+      const node = cloneNodeDeep(incoming);
+      const match = findMergeMatch(nodes, node);
+
+      if (!match) {
+        nodes.push(node);
+        return;
+      }
+
+      if (node.done) match.done = true;
+      if (node.page !== undefined && match.page === undefined) match.page = node.page;
+
+      const incomingChildren = Array.isArray(node.children) ? node.children : [];
+      if (incomingChildren.length) {
+        if (match.type !== "block") {
+          match.type = "block";
+          match.kind = match.kind || "block";
+          match.open = true;
+          match.children = [];
+        }
+
+        match.children = Array.isArray(match.children) ? match.children : [];
+        incomingChildren.forEach(child => mergeNodeInto(match.children, child));
+      }
+    }
+
+    function mergeAsSmart(rootList, branchList) {
+      branchList.items.forEach(node => mergeNodeInto(rootList.items, node));
+    }
+
+    function mergeAsBlock(rootList, branchList) {
+      const branchBlock = {
+        id: makeId(),
+        type: "block",
+        kind: "merged-root",
+        text: branchList.name,
+        done: false,
+        open: true,
+        children: cloneNodesDeep(branchList.items)
+      };
+
+      mergeNodeInto(rootList.items, branchBlock);
+    }
+
+    function mergeAsAppend(rootList, branchList) {
+      rootList.items.push(...cloneNodesDeep(branchList.items));
+    }
+
+    function mergeLists() {
+      const rootId = els.mergeRootSelect.value;
+      const branchId = els.mergeBranchSelect.value;
+      const rootList = data.lists.find(list => list.id === rootId);
+      const branchList = data.lists.find(list => list.id === branchId);
+
+      if (!rootList || !branchList) {
+        showToast("Birleştirilecek listeler bulunamadı.");
+        return;
+      }
+
+      if (rootId === branchId) {
+        showToast("Kök ve dal aynı liste olamaz.");
+        return;
+      }
+
+      const mode = els.mergeMode.value;
+      if (mode === "block") mergeAsBlock(rootList, branchList);
+      else if (mode === "append") mergeAsAppend(rootList, branchList);
+      else mergeAsSmart(rootList, branchList);
+
+      if (els.mergeDeleteBranch.checked) {
+        data.lists = data.lists.filter(list => list.id !== branchId);
+      }
+
+      data.activeListId = rootId;
+      els.filter.value = "all";
+      els.mergeDeleteBranch.checked = false;
+      clearPendingParent();
+      resetPendingDelete();
+      save();
+      render();
+      showToast('"' + branchList.name + '" → "' + rootList.name + '" içine birleştirildi.');
+    }
+
+    function swapMergeLists() {
+      const rootId = els.mergeRootSelect.value;
+      const branchId = els.mergeBranchSelect.value;
+      els.mergeRootSelect.value = branchId;
+      els.mergeBranchSelect.value = rootId;
+      updateMergeMapText();
+    }
+
+    function updateMergeMapText() {
+      const root = data.lists.find(list => list.id === els.mergeRootSelect.value);
+      const branch = data.lists.find(list => list.id === els.mergeBranchSelect.value);
+      els.mergeMapText.textContent = (root ? root.name : "Kök") + " ← " + (branch ? branch.name : "Dal");
+      els.mergeBtn.disabled = data.lists.length < 2 || !root || !branch || root.id === branch.id;
+      els.swapMergeBtn.disabled = data.lists.length < 2;
+    }
+
+    function renderMergeSelectors() {
+      const previousRoot = els.mergeRootSelect.value || data.activeListId;
+      const previousBranch = els.mergeBranchSelect.value;
+
+      els.mergeRootSelect.innerHTML = "";
+      els.mergeBranchSelect.innerHTML = "";
+
+      data.lists.forEach(list => {
+        const rootOption = document.createElement("option");
+        rootOption.value = list.id;
+        rootOption.textContent = "Kök: " + list.name;
+        els.mergeRootSelect.appendChild(rootOption);
+
+        const branchOption = document.createElement("option");
+        branchOption.value = list.id;
+        branchOption.textContent = "Dal: " + list.name;
+        els.mergeBranchSelect.appendChild(branchOption);
+      });
+
+      els.mergeRootSelect.value = data.lists.some(list => list.id === previousRoot)
+        ? previousRoot
+        : data.activeListId;
+
+      const fallbackBranch = data.lists.find(list => list.id !== els.mergeRootSelect.value);
+      els.mergeBranchSelect.value = data.lists.some(list => list.id === previousBranch && list.id !== els.mergeRootSelect.value)
+        ? previousBranch
+        : (fallbackBranch ? fallbackBranch.id : els.mergeRootSelect.value);
+
+      updateMergeMapText();
+    }
+
+    function getAfterRow(container, y) {
+      const rows = Array.from(container.querySelectorAll(".node[data-level='0']:not(.dragging-row)"));
+      let closestOffset = Number.NEGATIVE_INFINITY;
+      let closestRow = null;
+
+      rows.forEach(row => {
+        const box = row.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closestOffset) {
+          closestOffset = offset;
+          closestRow = row;
+        }
+      });
+      return closestRow;
+    }
+
+    function startDrag(event) {
+      const handle = event.target.closest("[data-action='drag']");
+      if (!handle || handle.classList.contains("disabled")) return;
+      if (els.filter.value !== "all") {
+        showToast("Sıralama için filtre Tümü olmalı.");
+        return;
+      }
+      const row = handle.closest(".node[data-level='0']");
+      if (!row) return;
+      event.preventDefault();
+      dragRow = row;
+      dragRow.classList.add("dragging-row");
+      document.body.classList.add("dragging");
+      if (handle.setPointerCapture && event.pointerId !== undefined) handle.setPointerCapture(event.pointerId);
+    }
+
+    function moveDrag(event) {
+      if (!dragRow) return;
+      event.preventDefault();
+      const afterRow = getAfterRow(els.items, event.clientY);
+      if (afterRow) els.items.insertBefore(dragRow, afterRow);
+      else els.items.appendChild(dragRow);
+    }
+
+    function endDrag() {
+      if (!dragRow) return;
+      const orderedIds = Array.from(els.items.querySelectorAll(".node[data-level='0']")).map(row => row.dataset.id);
+      const map = new Map(activeList().items.map(item => [item.id, item]));
+      activeList().items = orderedIds.map(itemId => map.get(itemId)).filter(Boolean);
+      dragRow.classList.remove("dragging-row");
+      dragRow = null;
+      document.body.classList.remove("dragging");
+      save();
+      render();
+    }
+
+    function handleNodeClick(event) {
+      const button = event.target.closest("[data-action]");
+      if (!button) return;
+      const action = button.dataset.action;
+      if (action === "drag") return;
+
+      const row = button.closest(".node");
+      if (!row) return;
+      const nodeId = row.dataset.id;
+
+      if (action === "toggle") {
+        updateNode(nodeId, node => {
+          const state = getNodeDoneState(node);
+          setDoneRecursive(node, state !== "done");
+        });
+      }
+      if (action === "delete") deleteNode(nodeId);
+      if (action === "open") updateNode(nodeId, node => { node.open = !node.open; });
+      if (action === "target") setPendingParent(nodeId);
+    }
+
+    function renderListSelect() {
+      els.listSelect.innerHTML = "";
+      data.lists.forEach(list => {
+        const option = document.createElement("option");
+        option.value = list.id;
+        option.textContent = list.name;
+        option.selected = list.id === data.activeListId;
+        els.listSelect.appendChild(option);
+      });
+    }
+
+    function renderStats() {
+      const list = activeList();
+      const stats = listStats(list.items);
+      const percent = stats.total ? Math.round((stats.done / stats.total) * 100) : 0;
+
+      els.activeListName.textContent = list.name;
+      els.countText.textContent = stats.done + " / " + stats.total + " tamamlandı";
+      els.percentText.textContent = "%" + percent;
+      els.fill.style.width = percent + "%";
+
+      const hasItems = stats.total > 0;
+      els.completeBtn.disabled = !hasItems;
+      els.uncheckBtn.disabled = !hasItems;
+      els.clearItemsBtn.disabled = !activeList().items.length;
+      els.exportListBtn.disabled = !activeList().items.length;
+    }
+
+    function renderItems() {
+      const list = activeList();
+      const html = renderNodes(list.items, 0);
+      if (!html) {
+        let message = "Bu listede henüz öğe yok.";
+        if (list.items.length && els.filter.value === "todo") message = "Kalan öğe yok.";
+        if (list.items.length && els.filter.value === "done") message = "Biten öğe yok.";
+        els.items.innerHTML = '<div class="empty">' + message + '</div>';
+        return;
+      }
+      els.items.innerHTML = html;
+    }
+
+    function renderNodes(nodes, depth) {
+      return nodes.filter(nodeMatchesFilter).map(node => renderNode(node, depth)).join("");
+    }
+
+    function renderNode(node, depth) {
+      const state = getNodeDoneState(node);
+      const doneClass = state === "done" ? "done" : "";
+      const partialClass = state === "partial" ? "partial" : "";
+      const isBlock = node.type === "block";
+      const isGenus = node.kind === "genus-species";
+      const stats = nodeStats(node);
+      const canDrag = depth === 0;
+      const visibleChildren = isBlock && node.open !== false ? renderNodes(node.children || [], depth + 1) : "";
+      const openIcon = isBlock ? (node.open === false ? "›" : "⌄") : "";
+      const handleClass = canDrag ? "handle" : "handle disabled";
+      const blockClass = isBlock ? "block" : "";
+      const genusClass = isGenus ? "genus" : "";
+      const typeBadge = isBlock
+        ? '<span class="badge ' + (isGenus ? "genus-badge" : "") + '">' + (isGenus ? "cins-tür" : "blok") + '</span>'
+        : "";
+      const countBadge = isBlock ? '<span class="badge">' + stats.done + '/' + stats.total + '</span>' : "";
+      const pageBadge = node.page !== undefined ? '<span class="badge">s. ' + escapeHTML(node.page) + '</span>' : "";
+
+      return `
+        <div class="node ${blockClass} ${genusClass} ${doneClass}" data-id="${escapeHTML(node.id)}" data-level="${depth}" style="--depth:${Math.min(depth, 8)}">
+          <button class="${handleClass}" type="button" data-action="drag" aria-label="Sürükle">${canDrag ? "☰" : "·"}</button>
+          <button class="check ${doneClass} ${partialClass}" type="button" data-action="toggle">${state === "partial" ? "–" : "✓"}</button>
+          <div class="node-text">
+            <div>${escapeHTML(node.text)}</div>
+            <div class="meta">${typeBadge}${countBadge}${pageBadge}</div>
+          </div>
+          <button class="mini-btn" type="button" data-action="${isBlock ? "open" : "target-none"}" ${isBlock ? "" : "disabled"}>${openIcon}</button>
+          <button class="mini-btn" type="button" data-action="${isBlock ? "target" : "target-none"}" ${isBlock ? "" : "disabled"}>+</button>
+          <button class="delete" type="button" data-action="delete">×</button>
+        </div>
+        ${visibleChildren}
+      `;
+    }
+
+    function render() {
+      renderListSelect();
+      renderMergeSelectors();
+      renderStats();
+      renderItems();
+    }
+
+    els.createListBtn.addEventListener("click", createList);
+    els.renameListBtn.addEventListener("click", renameList);
+    els.deleteListBtn.addEventListener("click", deleteActiveList);
+
+    els.listSelect.addEventListener("change", () => {
+      data.activeListId = els.listSelect.value;
+      els.filter.value = "all";
+      els.listNameInput.value = "";
+      resetPendingDelete();
+      clearPendingParent();
+      save();
+      render();
+    });
+
+    els.addItemBtn.addEventListener("click", addNodeFromInput);
+    els.bulkBtn.addEventListener("click", addBulkItems);
+    els.completeBtn.addEventListener("click", () => setAllDone(true));
+    els.uncheckBtn.addEventListener("click", () => setAllDone(false));
+    els.clearItemsBtn.addEventListener("click", clearCurrentList);
+    els.exportListBtn.addEventListener("click", exportCurrentList);
+    els.exportAllBtn.addEventListener("click", exportAllLists);
+    els.importBtn.addEventListener("click", triggerImport);
+    els.fileInput.addEventListener("change", handleFileImport);
+
+    els.mergeBtn.addEventListener("click", mergeLists);
+    els.swapMergeBtn.addEventListener("click", swapMergeLists);
+    els.mergeRootSelect.addEventListener("change", () => {
+      if (els.mergeRootSelect.value === els.mergeBranchSelect.value) {
+        const fallback = data.lists.find(list => list.id !== els.mergeRootSelect.value);
+        if (fallback) els.mergeBranchSelect.value = fallback.id;
+      }
+      updateMergeMapText();
+    });
+    els.mergeBranchSelect.addEventListener("change", updateMergeMapText);
+    els.mergeMode.addEventListener("change", updateMergeMapText);
+    els.expandAllBtn.addEventListener("click", () => setAllOpen(true));
+    els.collapseAllBtn.addEventListener("click", () => setAllOpen(false));
+    els.targetHint.addEventListener("click", clearPendingParent);
+
+    els.itemInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        addNodeFromInput();
+      }
+    });
+
+    els.listNameInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        createList();
+      }
+    });
+
+    els.filter.addEventListener("change", render);
+    els.items.addEventListener("click", handleNodeClick);
+    els.items.addEventListener("pointerdown", startDrag);
+
+    window.addEventListener("pointermove", moveDrag);
+    window.addEventListener("pointerup", endDrag);
+    window.addEventListener("pointercancel", endDrag);
+
+    save();
     render();
-  }
-
-  function pushUndo(){
-    undoStack.push(deepClone(state));
-    if(undoStack.length > 20) undoStack.shift();
-  }
-
-  function scheduleAutoBackup(reason){
-    clearTimeout(autoTimer);
-    autoTimer = setTimeout(()=>createAutoBackup(reason), AUTOSAVE_DELAY);
-  }
-
-  function countItems(items){
-    let total=0, done=0;
-    for(const it of items){
-      if(it.type === 'block'){
-        const c = countItems(it.children || []);
-        total += c.total; done += c.done;
-      }else{
-        total++; if(it.done) done++;
-      }
-    }
-    return {total, done};
-  }
-
-  function countAll(){
-    let total=0, done=0;
-    for(const l of state.lists){ const c=countItems(l.items); total+=c.total; done+=c.done; }
-    return {total,done};
-  }
-
-  function backupPayload(){
-    return { type:'takip-app-backup-v3', app:'Takip', exportedAt:nowIso(), storageKey:STORAGE_KEY, data:state, counts:countAll() };
-  }
-
-  function download(filename, text, type){
-    const blob = new Blob([text], {type:type || 'application/json;charset=utf-8'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename; document.body.appendChild(a); a.click();
-    setTimeout(()=>{URL.revokeObjectURL(url); a.remove();}, 500);
-  }
-
-  function safeName(s){ return String(s||'takip').toLowerCase().replace(/[ğ]/g,'g').replace(/[ü]/g,'u').replace(/[ş]/g,'s').replace(/[ı]/g,'i').replace(/[ö]/g,'o').replace(/[ç]/g,'c').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80) || 'takip'; }
-
-  function downloadBackup(){
-    const date = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
-    download('takip-yedek-' + date + '.json', JSON.stringify(backupPayload(), null, 2));
-    toast('Yedek indirildi');
-  }
-
-  function exportActive(){
-    const l = activeList();
-    const payload = { type:'takip-yedek-v2', format:'blocks', name:l.name, exportedAt:nowIso(), lists:[deepClone(l)] };
-    download(safeName(l.name) + '-liste.json', JSON.stringify(payload, null, 2));
-    toast('Aktif liste dışa aktarıldı');
-  }
-
-  function exportTxt(){
-    const l = activeList();
-    const lines = ['# ' + l.name, ''];
-    for(const it of l.items) itemToTxt(it, lines, 0);
-    download(safeName(l.name) + '.txt', lines.join('\n'), 'text/plain;charset=utf-8');
-  }
-
-  function itemToTxt(it, lines, depth){
-    const pad = '  '.repeat(depth);
-    if(it.type === 'block'){
-      lines.push(pad + '## ' + it.text);
-      for(const ch of it.children || []) itemToTxt(ch, lines, depth+1);
-    }else lines.push(pad + (it.done?'[x] ':'[ ] ') + it.text + (it.page ? ' — s.'+it.page : ''));
-  }
-
-  async function copyBackup(){
-    const text = JSON.stringify(backupPayload());
-    try{ await navigator.clipboard.writeText(text); toast('Yedek panoya kopyalandı'); }
-    catch(e){ el('pasteBox').value = text; toast('Kopyalanamadı; kutuya yazdım'); }
-  }
-
-  function createAutoBackup(reason){
-    try{
-      const arr = loadAutoBackups();
-      const counts = countAll();
-      const last = arr[0];
-      const snapshot = JSON.stringify(state);
-      if(last && last.snapshot === snapshot) return;
-      arr.unshift({ id:uid(), createdAt:nowIso(), reason:reason || 'otomatik', listCount:state.lists.length, total:counts.total, done:counts.done, snapshot });
-      while(arr.length > MAX_AUTO_BACKUPS) arr.pop();
-      localStorage.setItem(BACKUP_KEY, JSON.stringify(arr));
-      renderAutoBackups();
-      el('backupStatus').textContent = 'Oto yedek: ' + new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
-    }catch(e){ el('backupStatus').textContent = 'Yedek alanı dolu olabilir'; }
-  }
-
-  function loadAutoBackups(){
-    try{ const a=JSON.parse(localStorage.getItem(BACKUP_KEY)||'[]'); return Array.isArray(a)?a:[]; }catch(e){return []}
-  }
-
-  function restoreAutoBackup(id){
-    const b = loadAutoBackups().find(x=>x.id===id);
-    if(!b) return;
-    if(!confirm('Bu otomatik yedeğe dönülsün mü? Mevcut hal yeni otomatik yedek olarak saklanır.')) return;
-    pushUndo();
-    createAutoBackup('geri dönüş öncesi');
-    state = normalizeState(JSON.parse(b.snapshot));
-    save('otomatik yedekten geri yüklendi');
-    toast('Otomatik yedek yüklendi');
-  }
-
-  function deleteAutoBackup(id){
-    const arr = loadAutoBackups().filter(x=>x.id!==id);
-    localStorage.setItem(BACKUP_KEY, JSON.stringify(arr));
-    renderAutoBackups();
-  }
-
-  function restoreFromObject(obj){
-    if(!obj || typeof obj !== 'object') throw new Error('Geçersiz JSON');
-    pushUndo();
-    if(obj.type === 'takip-app-backup-v3' && obj.data){
-      if(!confirm('Tam yedek yüklenecek. Mevcut tüm listeler değiştirilecek. Devam?')) return;
-      createAutoBackup('tam yedek yükleme öncesi');
-      state = normalizeState(obj.data);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      toast('Tam yedek yüklendi');
-      render(); return;
-    }
-    importListObject(obj);
-  }
-
-  function importListObject(obj){
-    let incoming = [];
-    if(Array.isArray(obj)) incoming = [{name:'İçe aktarılan', items:obj}];
-    else if(Array.isArray(obj.lists)) incoming = obj.lists;
-    else if(Array.isArray(obj.items)) incoming = [{name:obj.name || 'İçe aktarılan', items:obj.items}];
-    else throw new Error('Bu dosyada liste bulunamadı');
-    incoming = incoming.map(l=>({id:uid(), name:String(l.name || obj.name || 'İçe aktarılan'), items:normalizeItems(l.items || [])}));
-    if(!incoming.length) throw new Error('Boş liste');
-    state.lists.push(...incoming);
-    state.activeListId = incoming[0].id;
-    save('liste içe aktarıldı');
-    toast(incoming.length + ' liste içe aktarıldı');
-  }
-
-  function readFileAsText(file, cb){
-    const r = new FileReader();
-    r.onload = () => cb(String(r.result||''));
-    r.onerror = () => toast('Dosya okunamadı');
-    r.readAsText(file);
-  }
-
-  function findItem(items, id){
-    for(const it of items){
-      if(it.id === id) return it;
-      if(it.type === 'block') { const f = findItem(it.children || [], id); if(f) return f; }
-    }
-    return null;
-  }
-
-  function removeItem(items, id){
-    const idx = items.findIndex(x=>x.id===id);
-    if(idx >= 0){ items.splice(idx,1); return true; }
-    for(const it of items){ if(it.type === 'block' && removeItem(it.children || [], id)) return true; }
-    return false;
-  }
-
-  function setChildrenDone(items, done){
-    for(const it of items){
-      if(it.type === 'block') setChildrenDone(it.children || [], done);
-      else it.done = done;
-    }
-  }
-
-  function toggle(id){
-    const l = activeList();
-    const it = findItem(l.items, id);
-    if(!it) return;
-    pushUndo();
-    if(it.type === 'block'){
-      const c = countItems(it.children || []);
-      const target = !(c.total > 0 && c.done === c.total);
-      setChildrenDone(it.children || [], target);
-      it.done = target;
-    }else it.done = !it.done;
-    save('tik değişikliği');
-  }
-
-  function deleteItem(id){
-    if(!confirm('Bu madde silinsin mi?')) return;
-    pushUndo();
-    removeItem(activeList().items, id);
-    save('madde silindi');
-  }
-
-  function editItem(id){
-    const it = findItem(activeList().items, id);
-    if(!it) return;
-    const text = prompt('Yeni metin:', it.text);
-    if(text === null) return;
-    if(!text.trim()) return toast('Boş metin olmaz');
-    pushUndo(); it.text = text.trim(); save('madde düzenlendi');
-  }
-
-  function addList(){
-    const name = el('newListName').value.trim();
-    if(!name) return toast('Liste adı yaz');
-    pushUndo();
-    const id = uid();
-    state.lists.push({id, name, items:[]});
-    state.activeListId = id;
-    el('newListName').value = '';
-    save('liste eklendi');
-  }
-
-  function addItem(){
-    const text = el('newItemText').value.trim();
-    if(!text) return toast('Madde yaz');
-    pushUndo();
-    activeList().items.push({id:uid(), type:'item', text, done:false});
-    el('newItemText').value = '';
-    save('madde eklendi');
-  }
-
-  function renameList(){
-    const l = activeList();
-    const name = prompt('Liste adı:', l.name);
-    if(name === null) return;
-    if(!name.trim()) return toast('Boş ad olmaz');
-    pushUndo(); l.name = name.trim(); save('liste yeniden adlandırıldı');
-  }
-
-  function deleteList(){
-    if(state.lists.length <= 1) return toast('En az bir liste kalmalı');
-    const l = activeList();
-    if(!confirm('Bu liste silinsin mi?\n' + l.name)) return;
-    pushUndo();
-    state.lists = state.lists.filter(x=>x.id!==l.id);
-    state.activeListId = state.lists[0].id;
-    save('liste silindi');
-  }
-
-  function markAll(){
-    const l = activeList();
-    const c = countItems(l.items);
-    const target = !(c.total > 0 && c.done === c.total);
-    pushUndo(); setChildrenDone(l.items, target); save('toplu tik');
-  }
-
-  function undo(){
-    const prev = undoStack.pop();
-    if(!prev) return toast('Geri alınacak işlem yok');
-    state = prev;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    render(); toast('Geri alındı');
-  }
-
-  function resetAll(){
-    if(!confirm('Tüm listeler sıfırlansın mı? Önce otomatik yedek alınacak.')) return;
-    pushUndo(); createAutoBackup('sıfırlama öncesi'); state = defaultState(); save('sıfırlandı');
-  }
-
-  function renderTabs(){
-    tabs.innerHTML = '';
-    for(const l of state.lists){
-      const c = countItems(l.items); const pct = c.total ? Math.round(c.done/c.total*100) : 0;
-      const b = document.createElement('button');
-      b.className = 'tab' + (l.id===state.activeListId ? ' active' : '');
-      b.textContent = l.name + ' · ' + pct + '%';
-      b.onclick = () => { state.activeListId = l.id; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); render(); };
-      tabs.appendChild(b);
-    }
-  }
-
-  function passFilter(it, q){
-    if(it.type === 'block'){
-      const textMatch = it.text.toLowerCase().includes(q);
-      const childMatch = (it.children||[]).some(ch=>passFilter(ch,q));
-      return textMatch || childMatch;
-    }
-    if(filter === 'todo' && it.done) return false;
-    if(filter === 'done' && !it.done) return false;
-    return !q || it.text.toLowerCase().includes(q);
-  }
-
-  function renderItem(it, q){
-    if(it.type === 'block'){
-      if(!passFilter(it,q)) return null;
-      const div = document.createElement('div'); div.className='block';
-      const c = countItems(it.children || []); const pct = c.total ? Math.round(c.done/c.total*100) : 0;
-      div.innerHTML = '<div class="blockHead"><button class="check" data-toggle="'+it.id+'">'+(c.total && c.done===c.total?'✓':'')+'</button><div class="grow"><div class="blockTitle"></div><div class="meta">'+c.done+'/'+c.total+' · '+pct+'%</div></div><button class="btn small" data-edit="'+it.id+'">Düzenle</button><button class="btn small danger" data-del="'+it.id+'">Sil</button></div><div class="children"></div>';
-      div.querySelector('.blockTitle').textContent = it.text;
-      const childBox = div.querySelector('.children');
-      for(const ch of it.children || []){
-        const node = renderItem(ch,q);
-        if(node) childBox.appendChild(node);
-      }
-      return div;
-    }
-    if(!passFilter(it,q)) return null;
-    const row = document.createElement('div'); row.className = 'child item ' + (it.done?'done':'');
-    row.innerHTML = '<button class="check" data-toggle="'+it.id+'">'+(it.done?'✓':'')+'</button><div class="grow"><div class="text"></div>'+(it.page?'<div class="meta">s. '+it.page+'</div>':'')+'</div><button class="btn small" data-edit="'+it.id+'">Düzenle</button><button class="btn small danger" data-del="'+it.id+'">Sil</button>';
-    row.querySelector('.text').textContent = it.text;
-    return row;
-  }
-
-  function renderList(){
-    listEl.innerHTML = '';
-    const l = activeList();
-    const q = el('search').value.trim().toLowerCase();
-    let shown = 0;
-    for(const it of l.items){
-      const node = renderItem(it,q);
-      if(node){ listEl.appendChild(node); shown++; }
-    }
-    if(!shown){ const e=document.createElement('div'); e.className='empty'; e.textContent = l.items.length ? 'Bu filtrede sonuç yok.' : 'Bu liste boş. JSON içe aktarabilir veya madde ekleyebilirsin.'; listEl.appendChild(e); }
-  }
-
-  function renderStats(){
-    const c = countItems(activeList().items);
-    const pct = c.total ? Math.round(c.done/c.total*100) : 0;
-    el('doneCount').textContent = c.done;
-    el('totalCount').textContent = c.total;
-    el('percentCount').textContent = pct + '%';
-    el('fill').style.width = pct + '%';
-  }
-
-  function renderAutoBackups(){
-    const box = el('autoBackups'); if(!box) return;
-    const arr = loadAutoBackups(); box.innerHTML = '';
-    if(!arr.length){ box.innerHTML = '<div class="empty" style="padding:16px">Henüz otomatik yedek yok.</div>'; return; }
-    for(const b of arr){
-      const div = document.createElement('div'); div.className='item';
-      div.innerHTML = '<div class="row"><div class="grow"><div class="text"><b></b></div><div class="meta"></div></div><button class="btn small blue">Yükle</button><button class="btn small danger">Sil</button></div>';
-      div.querySelector('b').textContent = trDate(b.createdAt);
-      div.querySelector('.meta').textContent = (b.reason||'otomatik') + ' · ' + (b.done||0) + '/' + (b.total||0) + ' · ' + (b.listCount||0) + ' liste';
-      const buttons = div.querySelectorAll('button');
-      buttons[0].onclick = () => restoreAutoBackup(b.id);
-      buttons[1].onclick = () => deleteAutoBackup(b.id);
-      box.appendChild(div);
-    }
-  }
-
-  function render(){ renderTabs(); renderStats(); renderList(); renderAutoBackups(); }
-
-  listEl.addEventListener('click', e=>{
-    const t = e.target.closest('button'); if(!t) return;
-    const id = t.dataset.toggle || t.dataset.edit || t.dataset.del;
-    if(!id) return;
-    if(t.dataset.toggle) toggle(id);
-    else if(t.dataset.edit) editItem(id);
-    else if(t.dataset.del) deleteItem(id);
-  });
-
-  el('addListBtn').onclick = addList;
-  el('addItemBtn').onclick = addItem;
-  el('newListName').addEventListener('keydown', e=>{ if(e.key==='Enter') addList(); });
-  el('newItemText').addEventListener('keydown', e=>{ if(e.key==='Enter') addItem(); });
-  el('downloadBackupBtn').onclick = downloadBackup;
-  el('quickBackupBtn').onclick = downloadBackup;
-  el('copyBackupBtn').onclick = copyBackup;
-  el('exportActiveBtn').onclick = exportActive;
-  el('exportTxtBtn').onclick = exportTxt;
-  el('restoreBackupBtn').onclick = () => el('backupFile').click();
-  el('quickImportBtn').onclick = () => el('backupFile').click();
-  el('importListBtn').onclick = () => el('importFile').click();
-  el('renameListBtn').onclick = renameList;
-  el('deleteListBtn').onclick = deleteList;
-  el('markAllBtn').onclick = markAll;
-  el('undoBtn').onclick = undo;
-  el('resetBtn').onclick = resetAll;
-  el('filterAll').onclick = () => {filter='all'; renderList();};
-  el('filterTodo').onclick = () => {filter='todo'; renderList();};
-  el('filterDone').onclick = () => {filter='done'; renderList();};
-  el('search').addEventListener('input', renderList);
-
-  el('backupFile').addEventListener('change', e=>{
-    const f = e.target.files && e.target.files[0]; if(!f) return;
-    readFileAsText(f, text=>{ try{ restoreFromObject(JSON.parse(text)); }catch(err){ toast('Yedek okunamadı: ' + err.message); } });
-    e.target.value = '';
-  });
-  el('importFile').addEventListener('change', e=>{
-    const f = e.target.files && e.target.files[0]; if(!f) return;
-    readFileAsText(f, text=>{ try{ importListObject(JSON.parse(text)); }catch(err){ toast('İçe aktarma olmadı: ' + err.message); } });
-    e.target.value = '';
-  });
-  el('pasteImportBtn').onclick = () => {
-    const text = el('pasteBox').value.trim(); if(!text) return toast('JSON yapıştır');
-    try{ restoreFromObject(JSON.parse(text)); el('pasteBox').value=''; }catch(err){ toast('JSON okunamadı: '+err.message); }
-  };
-
-  if(!localStorage.getItem(BACKUP_KEY)) createAutoBackup('ilk kurulum');
-  render();
-})();
-</script>
+  </script>
 </body>
 </html>
